@@ -16,7 +16,8 @@ namespace ExcelInvoiceGenerator
 {
     public partial class Form1 : Form
     {
-        double quantity = 0, basePrice = 0, SGST = 0, CGST = 0, IGST = 0, rate = 0, amount = 0, TotalAmount = 0;
+        int counter;
+        List<string> unavailableSKU = new List<string>();
         public Form1()
         {
             InitializeComponent();
@@ -24,14 +25,16 @@ namespace ExcelInvoiceGenerator
 
         private void cmb_PartyName_Load(object sender, EventArgs e)
         {
-
+            counter = Convert.ToInt32(File.ReadAllText((Application.StartupPath + "\\config.dat")));
             string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
+            string[] skuDetails = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
             foreach (var line in lineOfContents)
             {
                 string[] tokens = line.Split(',');
                 cmb_PartyName.Items.Add(tokens[1]);
             }
-            btn_GenerateInvoice_Click(sender, e);
+            lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
+            //btn_GenerateInvoice_Click(sender, e);
         }
 
         private void cmb_PartyName_SelectedIndexChanged(object sender, EventArgs e)
@@ -40,10 +43,10 @@ namespace ExcelInvoiceGenerator
             string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
             foreach (var line in lineOfContents)
             {
-                string[] tokens = line.Split(',');
+                string[] tokens = CSVParser(line);
                 if (tokens[0] == index.ToString())
                 {
-                    lab_Address.Text = tokens[2];
+                    lab_Address.Text = tokens[2] + "\n" + tokens[3] + "\n" + tokens[4] + "\n" + tokens[5] + "\n" + tokens[6] + "\n" + tokens[7] + "\n" + tokens[8];
                 }
             }
         }
@@ -55,6 +58,8 @@ namespace ExcelInvoiceGenerator
 
         private void btn_GenerateInvoice_Click(object sender, EventArgs e)
         {
+            unavailableSKU.Clear();
+            double quantity = 0, basePrice = 0, SGST = 0, CGST = 0, IGST = 0, rate = 0, amount = 0, TotalAmount = 0;
             XLWorkbook Workbook = new XLWorkbook(Application.StartupPath + "\\template.xlsx");
             IXLWorksheet Worksheet = Workbook.Worksheet(1);
             Worksheet.Cell("A1").Value = "TAX INVOICE";
@@ -66,7 +71,7 @@ namespace ExcelInvoiceGenerator
                 Worksheet.Cell("A4").Value = billFrom[1];
                 Worksheet.Cell("A5").Value = billFrom[2];
                 Worksheet.Cell("A6").Value = billFrom[3];
-
+                Worksheet.Cell("F3").Value = billFrom[4] + counter;
             }
             catch (Exception)
             {
@@ -124,30 +129,50 @@ namespace ExcelInvoiceGenerator
 
                 int index = cmb_PartyName.SelectedIndex + 1;
                 //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
-                string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
-                int startIndexForSku = 16;
-                foreach (var line in lineOfContents)
+                //string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
+                IDictionary<string, int> skuQty = new Dictionary<string, int>();
+                using (var reader = new StreamReader(Application.StartupPath + "\\SKULIST.csv"))
                 {
-                    string[] tokens = line.Split(',');
-                    Worksheet.Cell("A" + startIndexForSku).Value = tokens[0]; //suk
-                    Worksheet.Cell("D" + startIndexForSku).Value = tokens[1];//quantity
-                    double.TryParse(tokens[1], out quantity);
-
-                    // to merge cell
-                    var range = Worksheet.Range("A" + startIndexForSku + ":C" + startIndexForSku);
-                    range.Merge();
-                    //to set border
-                    var borderRange = Worksheet.Range("A" + startIndexForSku + ":K" + startIndexForSku);
-                    borderRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-                    borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    while (!reader.EndOfStream)
+                    {
+                        var record = reader.ReadLine();
+                        if (record == null) continue;
+                        var values = record.Split(',');
+                        if (!skuQty.ContainsKey(values[0]))
+                        {
+                            skuQty.Add(values[0], Convert.ToInt32(values[1]));
+                        }
+                        else
+                        {
+                            skuQty[values[0]] += Convert.ToInt32(values[1]);
+                        }
+                    }
+                }
+                int startIndexForSku = 16;
+                string[] sku = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
+                foreach (KeyValuePair<string, int> entry in skuQty)
+                {
                     //find sku in the database
                     //string[] sku = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKUDetails.csv"); //Moiz Address
-                    string[] sku = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv"); //Naqqash Address
+                     //Naqqash Address
+
                     foreach (var item in sku)
                     {
                         string[] skus = item.Split(',');
-                        if (skus[0] == tokens[0])
+                        if (skus[0] == entry.Key)
                         {
+                            Worksheet.Cell("A" + startIndexForSku).Value = entry.Key; //suk
+                            Worksheet.Cell("D" + startIndexForSku).Value = entry.Value;//quantity
+                            double.TryParse(entry.Value.ToString(), out quantity);
+
+                            // to merge cell
+                            var range = Worksheet.Range("A" + startIndexForSku + ":C" + startIndexForSku);
+                            range.Merge();
+                            //to set border
+                            var borderRange = Worksheet.Range("A" + startIndexForSku + ":K" + startIndexForSku);
+                            borderRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                            borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
                             double.TryParse(skus[1], out basePrice);
                             double.TryParse(skus[2], out SGST);
                             double.TryParse(skus[3], out CGST);
@@ -165,14 +190,25 @@ namespace ExcelInvoiceGenerator
                             Worksheet.Cell("J" + startIndexForSku).SetDataType(XLDataType.Number);
                             Worksheet.Cell("J" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
                             Worksheet.Cell("K" + startIndexForSku).Value = amount; //amount
-
+                            startIndexForSku++;
+                            break;
                         }
+                        else 
+                        {
+                            if (!unavailableSKU.Contains(entry.Key)) 
+                            {
+                                unavailableSKU.Add(entry.Key);
+                            }
+                            
+                        }
+
                     }
-                    startIndexForSku++;
-                    if (tokens[0] == index.ToString())
-                    {
-                        lab_Address.Text = tokens[2];
-                    }
+
+                    //if (tokens[0] == index.ToString())
+                    //{
+                    //    lab_Address.Text = tokens[2];
+
+                    //}
                 }
                 startIndexForSku++;
 
@@ -204,6 +240,18 @@ namespace ExcelInvoiceGenerator
 
                 //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
                 Workbook.SaveAs(Application.StartupPath + "\\file.xlsx"); //Naqqash Address
+
+                counter++;
+                lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString(); 
+                using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.dat", false))
+                {
+                    sw.Write(counter);
+                }
+                if (unavailableSKU.Count > 0) 
+                {
+                    lab_notFound.Text = unavailableSKU.Count + " items not found. [Download Log]";
+                    lab_notFound.Visible = true;
+                }
             }
         }
         
@@ -226,6 +274,28 @@ namespace ExcelInvoiceGenerator
 
             parser.Close();
             return fields;
+        }
+
+        private void lab_notFound_Click(object sender, EventArgs e)
+        {
+            lab_notFound.Visible = false;
+            SaveFileDialog saveDlg = new SaveFileDialog();
+            saveDlg.Filter = "Text files (.txt)|.txt";
+            saveDlg.FilterIndex = 0;
+            saveDlg.RestoreDirectory = true;
+            saveDlg.Title = "Save Log";
+
+            if (saveDlg.ShowDialog() == DialogResult.OK)
+            {
+                using (StreamWriter sw = new StreamWriter(saveDlg.FileName, true))
+                {
+                    foreach (string sku in unavailableSKU) 
+                    {
+                        sw.WriteLine(sku);
+                    }
+                }
+            }
+
         }
     }
 }
