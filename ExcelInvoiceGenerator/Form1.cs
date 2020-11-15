@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,120 +55,177 @@ namespace ExcelInvoiceGenerator
 
         private void btn_GenerateInvoice_Click(object sender, EventArgs e)
         {
-
-
             XLWorkbook Workbook = new XLWorkbook(Application.StartupPath + "\\template.xlsx");
             IXLWorksheet Worksheet = Workbook.Worksheet(1);
             Worksheet.Cell("A1").Value = "TAX INVOICE";
             Worksheet.Cell("A2").Value = "Billed From:-";
-            Worksheet.Cell("A3").Value = "HUBBERHOLME";
-            Worksheet.Cell("A4").Value = "A-13, Lower Ground Foor, Sector 58, Noida 201301";
-            Worksheet.Cell("A5").Value = "GSTIN:  09CMFPS6001N2ZM";
-            Worksheet.Cell("A6").Value = "PH: 0091-9582796098";
-            Worksheet.Cell("A7").Value = "BILL TO:";
-
-            Worksheet.Cell("F2").Value = "INVOICE NO.";
-            Worksheet.Cell("F4").Value = "BUYER'S ORDER NO. & DATE:	";
-            Worksheet.Cell("F7").Value = "Ship To:-";
-
-            Worksheet.Cell("H4").Value = "PARTY NAME AS PER BOOKS";
-
-            Worksheet.Cell("I2").Value = "Date";
-            Worksheet.Cell("I3").Value = dateTimePicker1.Value.ToShortDateString();
-
-            //Invoice table header
-
-            Worksheet.Cell("A15").Value = "SKU		";
-            Worksheet.Cell("D15").Value = "QTY";
-            Worksheet.Cell("E15").Value = "BASE PRICE";
-            Worksheet.Cell("F15").Value = "TOTAL TAXABLE VALUE";
-            Worksheet.Cell("G15").Value = "SGST";
-            Worksheet.Cell("H15").Value = "CGST";
-            Worksheet.Cell("I15").Value = "IGST";
-            Worksheet.Cell("J15").Value = "RATE";
-            Worksheet.Cell("K15").Value = "AMOUNT";
-
-            int index = cmb_PartyName.SelectedIndex + 1;
-            string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv");
-            int startIndexForSku = 16;
-            foreach (var line in lineOfContents)
+            try
             {
-                string[] tokens = line.Split(',');
-                Worksheet.Cell("A" + startIndexForSku).Value = tokens[0]; //suk
-                Worksheet.Cell("D" + startIndexForSku).Value = tokens[1];//quantity
-                double.TryParse(tokens[1], out quantity);
+                string[] billFrom = File.ReadAllLines(Application.StartupPath + "\\Setup\\billFrom.txt");
+                Worksheet.Cell("A3").Value = billFrom[0];
+                Worksheet.Cell("A4").Value = billFrom[1];
+                Worksheet.Cell("A5").Value = billFrom[2];
+                Worksheet.Cell("A6").Value = billFrom[3];
 
-                // to merge cell
-                var range = Worksheet.Range("A" + startIndexForSku + ":C" + startIndexForSku);
-                range.Merge();
-                //to set border
-                var borderRange = Worksheet.Range("A" + startIndexForSku + ":K" + startIndexForSku);
-                borderRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-                borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                //find sku in the database
-                string[] sku = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKUDetails.csv");
-
-                foreach (var item in sku)
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("billFrom: No such file in directory or the data is missing!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally 
+            {
+                Worksheet.Cell("A7").Value = "BILL TO:";
+                string[] parties = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
+                foreach (string line in parties) 
                 {
-                    string[] skus = item.Split(',');
-                    if (skus[0] == tokens[0])
+                    string[] tokens = CSVParser(line);
+                    if (tokens[1] == cmb_PartyName.Text) 
                     {
-                        double.TryParse(skus[1], out basePrice);
-                        double.TryParse(skus[2], out SGST);
-                        double.TryParse(skus[3], out CGST);
-                        double.TryParse(skus[4], out IGST);
-                        double.TryParse(skus[5], out rate);
+                        Worksheet.Cell("I5").Value = tokens[1];
+                        Worksheet.Cell("A8").Value = tokens[2];
+                        Worksheet.Cell("A9").Value = tokens[3];
+                        Worksheet.Cell("A10").Value = tokens[4];
+                        Worksheet.Cell("A11").Value = tokens[5];
+                        Worksheet.Cell("A12").Value = tokens[6];
+                        Worksheet.Cell("A13").Value = tokens[7];
+                        Worksheet.Cell("A14").Value = tokens[8];
 
-                        amount = basePrice + SGST + CGST + IGST;
-                        TotalAmount += amount * quantity;
-                        Worksheet.Cell("E" + startIndexForSku).Value = basePrice; // base price
-                        Worksheet.Cell("F" + startIndexForSku).Value = basePrice; // total taxable value
-                        Worksheet.Cell("G" + startIndexForSku).Value = SGST; //SGST
-                        Worksheet.Cell("H" + startIndexForSku).Value = CGST; //CGST
-                        Worksheet.Cell("I" + startIndexForSku).Value = IGST; //IGST
-                        Worksheet.Cell("J" + startIndexForSku).Value = rate + "%"; //Rate
-                        Worksheet.Cell("J" + startIndexForSku).SetDataType(XLDataType.Number);
-                        Worksheet.Cell("J" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
-                        Worksheet.Cell("K" + startIndexForSku).Value = amount; //amount
+                        Worksheet.Cell("F8").Value = tokens[2];
+                        Worksheet.Cell("F9").Value = tokens[3];
+                        Worksheet.Cell("F10").Value = tokens[4];
+                        Worksheet.Cell("F11").Value = tokens[5];
+                        Worksheet.Cell("F12").Value = tokens[6];
+                        Worksheet.Cell("F13").Value = tokens[7];
+                        Worksheet.Cell("F14").Value = tokens[8];
+                        break;
+                    }
+                }
 
+                Worksheet.Cell("F2").Value = "INVOICE NO.";
+                Worksheet.Cell("F4").Value = "BUYER'S ORDER NO. & DATE:	";
+                Worksheet.Cell("F7").Value = "Ship To:-";
+
+                Worksheet.Cell("I4").Value = "PARTY NAME AS PER BOOKS";
+
+                Worksheet.Cell("I2").Value = "Date";
+                Worksheet.Cell("I3").Value = dateTimePicker1.Value.ToShortDateString();
+
+                //Invoice table header
+
+                Worksheet.Cell("A15").Value = "SKU		";
+                Worksheet.Cell("D15").Value = "QTY";
+                Worksheet.Cell("E15").Value = "BASE PRICE";
+                Worksheet.Cell("F15").Value = "TOTAL TAXABLE VALUE";
+                Worksheet.Cell("G15").Value = "SGST";
+                Worksheet.Cell("H15").Value = "CGST";
+                Worksheet.Cell("I15").Value = "IGST";
+                Worksheet.Cell("J15").Value = "RATE";
+                Worksheet.Cell("K15").Value = "AMOUNT";
+
+                int index = cmb_PartyName.SelectedIndex + 1;
+                //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
+                string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
+                int startIndexForSku = 16;
+                foreach (var line in lineOfContents)
+                {
+                    string[] tokens = line.Split(',');
+                    Worksheet.Cell("A" + startIndexForSku).Value = tokens[0]; //suk
+                    Worksheet.Cell("D" + startIndexForSku).Value = tokens[1];//quantity
+                    double.TryParse(tokens[1], out quantity);
+
+                    // to merge cell
+                    var range = Worksheet.Range("A" + startIndexForSku + ":C" + startIndexForSku);
+                    range.Merge();
+                    //to set border
+                    var borderRange = Worksheet.Range("A" + startIndexForSku + ":K" + startIndexForSku);
+                    borderRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                    borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    //find sku in the database
+                    //string[] sku = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKUDetails.csv"); //Moiz Address
+                    string[] sku = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv"); //Naqqash Address
+                    foreach (var item in sku)
+                    {
+                        string[] skus = item.Split(',');
+                        if (skus[0] == tokens[0])
+                        {
+                            double.TryParse(skus[1], out basePrice);
+                            double.TryParse(skus[2], out SGST);
+                            double.TryParse(skus[3], out CGST);
+                            double.TryParse(skus[4], out IGST);
+                            double.TryParse(skus[5], out rate);
+
+                            amount = basePrice + SGST + CGST + IGST;
+                            TotalAmount += amount * quantity;
+                            Worksheet.Cell("E" + startIndexForSku).Value = basePrice; // base price
+                            Worksheet.Cell("F" + startIndexForSku).Value = basePrice; // total taxable value
+                            Worksheet.Cell("G" + startIndexForSku).Value = SGST; //SGST
+                            Worksheet.Cell("H" + startIndexForSku).Value = CGST; //CGST
+                            Worksheet.Cell("I" + startIndexForSku).Value = IGST; //IGST
+                            Worksheet.Cell("J" + startIndexForSku).Value = rate + "%"; //Rate
+                            Worksheet.Cell("J" + startIndexForSku).SetDataType(XLDataType.Number);
+                            Worksheet.Cell("J" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
+                            Worksheet.Cell("K" + startIndexForSku).Value = amount; //amount
+
+                        }
+                    }
+                    startIndexForSku++;
+                    if (tokens[0] == index.ToString())
+                    {
+                        lab_Address.Text = tokens[2];
                     }
                 }
                 startIndexForSku++;
-                if (tokens[0] == index.ToString())
-                {
-                    lab_Address.Text = tokens[2];
-                }
+
+                // total amount in words
+                // to merge cell
+                var range1 = Worksheet.Range("D" + startIndexForSku + ":H" + startIndexForSku);
+                range1.Merge();
+                //to set border
+                var borderRange2 = Worksheet.Range("B" + startIndexForSku + ":K" + startIndexForSku);
+                borderRange2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                borderRange2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                string amountInWords = NumberToWords.ConvertAmount(Math.Round(TotalAmount, 0));
+                Worksheet.Cell("B" + startIndexForSku).Value = "In Words";
+                Worksheet.Cell("D" + startIndexForSku).Value = amountInWords;
+                Worksheet.Cell("I" + startIndexForSku).Value = "TOTAL";
+                Worksheet.Cell("K" + startIndexForSku).Value = TotalAmount;
+
+
+                //signature and date
+                startIndexForSku++;
+                startIndexForSku++;
+                Worksheet.Cell("H" + startIndexForSku).Value = "Signature & Date:";
+                startIndexForSku++;
+                startIndexForSku++;
+                startIndexForSku++;
+                Worksheet.Cell("H" + startIndexForSku).Value = "\tFOR HUBBERHOLME";
+
+
+                //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
+                Workbook.SaveAs(Application.StartupPath + "\\file.xlsx"); //Naqqash Address
             }
-            startIndexForSku++;
+        }
+        
+        private string[] CSVParser(string csvLine) 
+        {
+            TextFieldParser parser = new TextFieldParser(new StringReader(csvLine));
 
-            // total amount in words
-            // to merge cell
-            var range1 = Worksheet.Range("D" + startIndexForSku + ":H" + startIndexForSku);
-            range1.Merge();
-            //to set border
-            var borderRange2 = Worksheet.Range("B" + startIndexForSku + ":K" + startIndexForSku);
-            borderRange2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-            borderRange2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-            
-            string amountInWords = NumberToWords.ConvertAmount(Math.Round(TotalAmount, 0));
-            Worksheet.Cell("B" + startIndexForSku).Value = "In Words";
-            Worksheet.Cell("D" + startIndexForSku).Value = amountInWords;
-            Worksheet.Cell("I" + startIndexForSku).Value = "TOTAL";
-            Worksheet.Cell("K" + startIndexForSku).Value = TotalAmount;
+            // You can also read from a file
+            // TextFieldParser parser = new TextFieldParser("mycsvfile.csv");
 
+            parser.HasFieldsEnclosedInQuotes = true;
+            parser.SetDelimiters(",");
 
-            //signature and date
-            startIndexForSku++;
-            startIndexForSku++;
-            Worksheet.Cell("H" + startIndexForSku).Value = "Signature & Date:";
-            startIndexForSku++;
-            startIndexForSku++;
-            startIndexForSku++;
-            Worksheet.Cell("H" + startIndexForSku).Value = "\tFOR HUBBERHOLME";
+            string[] fields = new string[7];
 
+            while (!parser.EndOfData)
+            {
+               fields = parser.ReadFields();
+            }
 
-            Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx");
-
+            parser.Close();
+            return fields;
         }
     }
 }
