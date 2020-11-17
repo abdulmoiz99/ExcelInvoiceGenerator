@@ -40,7 +40,15 @@
             this.btn_UploadSKU = new System.Windows.Forms.Button();
             this.btn_GenerateInvoice = new System.Windows.Forms.Button();
             this.lab_notFound = new System.Windows.Forms.Label();
+            this.btn_Reset = new System.Windows.Forms.Button();
+            this.resetPanel = new System.Windows.Forms.Panel();
+            this.txt_Password = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txt_Prefix = new System.Windows.Forms.TextBox();
+            this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            this.resetPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmb_PartyName
@@ -76,7 +84,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.ForeColor = System.Drawing.Color.Blue;
-            this.label3.Location = new System.Drawing.Point(487, 74);
+            this.label3.Location = new System.Drawing.Point(515, 74);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(141, 20);
             this.label3.TabIndex = 4;
@@ -96,9 +104,9 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.lab_Address);
-            this.groupBox1.Location = new System.Drawing.Point(491, 113);
+            this.groupBox1.Location = new System.Drawing.Point(519, 113);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(562, 294);
+            this.groupBox1.Size = new System.Drawing.Size(513, 294);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Party Details";
@@ -160,11 +168,79 @@
             this.lab_notFound.Visible = false;
             this.lab_notFound.Click += new System.EventHandler(this.lab_notFound_Click);
             // 
+            // btn_Reset
+            // 
+            this.btn_Reset.Location = new System.Drawing.Point(321, 460);
+            this.btn_Reset.Name = "btn_Reset";
+            this.btn_Reset.Size = new System.Drawing.Size(165, 33);
+            this.btn_Reset.TabIndex = 12;
+            this.btn_Reset.Text = "Reset";
+            this.btn_Reset.UseVisualStyleBackColor = true;
+            this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
+            // 
+            // resetPanel
+            // 
+            this.resetPanel.Controls.Add(this.btn_Update);
+            this.resetPanel.Controls.Add(this.label6);
+            this.resetPanel.Controls.Add(this.txt_Prefix);
+            this.resetPanel.Controls.Add(this.label4);
+            this.resetPanel.Controls.Add(this.txt_Password);
+            this.resetPanel.Location = new System.Drawing.Point(141, 210);
+            this.resetPanel.Name = "resetPanel";
+            this.resetPanel.Size = new System.Drawing.Size(345, 167);
+            this.resetPanel.TabIndex = 13;
+            this.resetPanel.Visible = false;
+            // 
+            // txt_Password
+            // 
+            this.txt_Password.Location = new System.Drawing.Point(131, 14);
+            this.txt_Password.Name = "txt_Password";
+            this.txt_Password.PasswordChar = '*';
+            this.txt_Password.Size = new System.Drawing.Size(200, 25);
+            this.txt_Password.TabIndex = 0;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 17);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(83, 20);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Password:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 66);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(113, 20);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Invoice Prefix:";
+            // 
+            // txt_Prefix
+            // 
+            this.txt_Prefix.Location = new System.Drawing.Point(131, 63);
+            this.txt_Prefix.Name = "txt_Prefix";
+            this.txt_Prefix.Size = new System.Drawing.Size(200, 25);
+            this.txt_Prefix.TabIndex = 15;
+            // 
+            // btn_Update
+            // 
+            this.btn_Update.Location = new System.Drawing.Point(166, 111);
+            this.btn_Update.Name = "btn_Update";
+            this.btn_Update.Size = new System.Drawing.Size(165, 33);
+            this.btn_Update.TabIndex = 14;
+            this.btn_Update.Text = "Update";
+            this.btn_Update.UseVisualStyleBackColor = true;
+            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1093, 507);
+            this.Controls.Add(this.resetPanel);
+            this.Controls.Add(this.btn_Reset);
             this.Controls.Add(this.lab_notFound);
             this.Controls.Add(this.btn_GenerateInvoice);
             this.Controls.Add(this.btn_UploadSKU);
@@ -184,6 +260,8 @@
             this.Load += new System.EventHandler(this.cmb_PartyName_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.resetPanel.ResumeLayout(false);
+            this.resetPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -202,6 +280,13 @@
         private System.Windows.Forms.Button btn_UploadSKU;
         private System.Windows.Forms.Button btn_GenerateInvoice;
         private System.Windows.Forms.Label lab_notFound;
+        private System.Windows.Forms.Button btn_Reset;
+        private System.Windows.Forms.Panel resetPanel;
+        private System.Windows.Forms.Button btn_Update;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txt_Prefix;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txt_Password;
     }
 }
 

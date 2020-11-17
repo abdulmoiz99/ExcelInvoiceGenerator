@@ -17,17 +17,44 @@ namespace ExcelInvoiceGenerator
     public partial class Form1 : Form
     {
         int counter;
+        string password;
         List<string> unavailableSKU = new List<string>();
         public Form1()
         {
             InitializeComponent();
         }
 
+        private List<string> FindNewSKU()
+        {
+            List<string> orderedSKU = new List<string>();
+            List<string> availableSKU = new List<string>();
+            List<string> newSKU = new List<string>();
+            string[] skuDetails = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
+            string[] skuList = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv");
+            for (int i = 0; i < skuList.Length; i++) 
+            {
+                orderedSKU.Add(skuList[i].Split(',')[0]);
+            }
+            for (int i = 1; i < skuDetails.Length; i++)
+            {
+                availableSKU.Add(skuDetails[i].Split(',')[0]);
+            }
+            orderedSKU = orderedSKU.Distinct().ToList();
+            foreach (string SKU in orderedSKU) 
+            {
+                if (!availableSKU.Contains(SKU)) 
+                {
+                    newSKU.Add(SKU);
+                }
+            }
+            return newSKU;
+        }
+
         private void cmb_PartyName_Load(object sender, EventArgs e)
         {
-            counter = Convert.ToInt32(File.ReadAllText((Application.StartupPath + "\\config.dat")));
+            password = File.ReadAllText(Application.StartupPath + "\\Setup\\password.txt");
+            counter = Convert.ToInt32(File.ReadAllText(Application.StartupPath + "\\config.dat"));
             string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
-            string[] skuDetails = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
             foreach (var line in lineOfContents)
             {
                 string[] tokens = line.Split(',');
@@ -195,10 +222,7 @@ namespace ExcelInvoiceGenerator
                         }
                         else 
                         {
-                            if (!unavailableSKU.Contains(entry.Key)) 
-                            {
-                                unavailableSKU.Add(entry.Key);
-                            }
+
                             
                         }
 
@@ -240,6 +264,7 @@ namespace ExcelInvoiceGenerator
 
                 //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
                 Workbook.SaveAs(Application.StartupPath + "\\file.xlsx"); //Naqqash Address
+                unavailableSKU = FindNewSKU();
 
                 counter++;
                 lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString(); 
@@ -296,6 +321,43 @@ namespace ExcelInvoiceGenerator
                 }
             }
 
+        }
+
+        private void btn_Reset_Click(object sender, EventArgs e)
+        {
+            resetPanel.Visible = true;
+            btn_Reset.Visible = false;
+        }
+
+        private void btn_Update_Click(object sender, EventArgs e)
+        {
+            if (password == txt_Password.Text)
+            {
+                string[] billFrom = File.ReadAllLines(Application.StartupPath + "\\Setup\\billFrom.txt");
+                billFrom[4] = txt_Prefix.Text;
+                using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\Setup\\billFrom.txt", false))
+                {
+                    for (int i = 0; i < billFrom.Length; i++)
+                    {
+                        sw.WriteLine(billFrom[i]);
+                    }
+                }
+                counter = 0;
+                lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
+                using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.dat", false))
+                {
+                    sw.Write(counter);
+                }
+                MessageBox.Show("Invoice number reset successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else 
+            {
+                MessageBox.Show("Invalid Password!", "Failure", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            txt_Password.Clear();
+            txt_Prefix.Clear();
+            resetPanel.Visible = false;
+            btn_Reset.Visible = true;
         }
     }
 }
