@@ -17,7 +17,8 @@ namespace ExcelInvoiceGenerator
     public partial class Form1 : Form
     {
         int counter;
-        string password;
+        string password = "P123";
+        string[] skuList;
         List<string> unavailableSKU = new List<string>();
         public Form1()
         {
@@ -30,7 +31,6 @@ namespace ExcelInvoiceGenerator
             List<string> availableSKU = new List<string>();
             List<string> newSKU = new List<string>();
             string[] skuDetails = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
-            string[] skuList = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv");
             for (int i = 0; i < skuList.Length; i++) 
             {
                 orderedSKU.Add(skuList[i].Split(',')[0]);
@@ -52,7 +52,6 @@ namespace ExcelInvoiceGenerator
 
         private void cmb_PartyName_Load(object sender, EventArgs e)
         {
-            password = File.ReadAllText(Application.StartupPath + "\\Setup\\password.txt");
             counter = Convert.ToInt32(File.ReadAllText(Application.StartupPath + "\\config.dat"));
             string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
             foreach (var line in lineOfContents)
@@ -85,6 +84,11 @@ namespace ExcelInvoiceGenerator
 
         private void btn_GenerateInvoice_Click(object sender, EventArgs e)
         {
+            if (skuList == null) 
+            {
+                MessageBox.Show("Please upload the SKU list first!", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
             unavailableSKU.Clear();
             double quantity = 0, basePrice = 0, SGST = 0, CGST = 0, IGST = 0, rate = 0, amount = 0, TotalAmount = 0;
             XLWorkbook Workbook = new XLWorkbook(Application.StartupPath + "\\template.xlsx");
@@ -158,21 +162,18 @@ namespace ExcelInvoiceGenerator
                 //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
                 //string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
                 IDictionary<string, int> skuQty = new Dictionary<string, int>();
-                using (var reader = new StreamReader(Application.StartupPath + "\\SKULIST.csv"))
+                for (int i = 0; i < skuList.Length; i++) 
                 {
-                    while (!reader.EndOfStream)
+                    var record = skuList[i];
+                    if (record == null) continue;
+                    var values = record.Split(',');
+                    if (!skuQty.ContainsKey(values[0]))
                     {
-                        var record = reader.ReadLine();
-                        if (record == null) continue;
-                        var values = record.Split(',');
-                        if (!skuQty.ContainsKey(values[0]))
-                        {
-                            skuQty.Add(values[0], Convert.ToInt32(values[1]));
-                        }
-                        else
-                        {
-                            skuQty[values[0]] += Convert.ToInt32(values[1]);
-                        }
+                        skuQty.Add(values[0], Convert.ToInt32(values[1]));
+                    }
+                    else
+                    {
+                        skuQty[values[0]] += Convert.ToInt32(values[1]);
                     }
                 }
                 int startIndexForSku = 16;
@@ -263,7 +264,17 @@ namespace ExcelInvoiceGenerator
 
 
                 //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
-                Workbook.SaveAs(Application.StartupPath + "\\file.xlsx"); //Naqqash Address
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();    
+                saveFileDialog1.Title = "Save Invoice";
+                saveFileDialog1.CheckPathExists = true;
+                saveFileDialog1.DefaultExt = "xlsx";
+                saveFileDialog1.Filter = "Excel (*.xlsx)|*.xlsx"; ;
+                saveFileDialog1.RestoreDirectory = true;
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    Workbook.SaveAs(saveFileDialog1.FileName);
+                }
+                     //Naqqash Address
                 unavailableSKU = FindNewSKU();
 
                 counter++;
@@ -358,6 +369,46 @@ namespace ExcelInvoiceGenerator
             txt_Prefix.Clear();
             resetPanel.Visible = false;
             btn_Reset.Visible = true;
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_MouseEnter(object sender, EventArgs e)
+        {
+            Cursor = Cursors.Hand;
+        }
+
+        private void label3_MouseLeave(object sender, EventArgs e)
+        {
+            Cursor = Cursors.Default;
+        }
+
+        private void btn_UploadSKU_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string filename = "";
+                OpenFileDialog dialog = new OpenFileDialog();
+                dialog.Title = "Open CSV File";
+                dialog.Filter = "CSV Files (*.csv)|*.csv";
+                dialog.RestoreDirectory = true;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    filename = dialog.FileName;
+                }
+                else
+                {
+                    return;
+                }
+                skuList = File.ReadAllLines(filename);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

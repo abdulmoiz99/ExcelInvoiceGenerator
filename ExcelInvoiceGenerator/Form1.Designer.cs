@@ -42,11 +42,11 @@
             this.lab_notFound = new System.Windows.Forms.Label();
             this.btn_Reset = new System.Windows.Forms.Button();
             this.resetPanel = new System.Windows.Forms.Panel();
-            this.txt_Password = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.btn_Update = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.txt_Prefix = new System.Windows.Forms.TextBox();
-            this.btn_Update = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txt_Password = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.resetPanel.SuspendLayout();
             this.SuspendLayout();
@@ -79,6 +79,7 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "NEW INVOICE";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -90,6 +91,8 @@
             this.label3.TabIndex = 4;
             this.label3.Text = "Create New Party";
             this.label3.Click += new System.EventHandler(this.label3_Click);
+            this.label3.MouseEnter += new System.EventHandler(this.label3_MouseEnter);
+            this.label3.MouseLeave += new System.EventHandler(this.label3_MouseLeave);
             // 
             // lab_CurrentInvoice
             // 
@@ -145,6 +148,7 @@
             this.btn_UploadSKU.TabIndex = 9;
             this.btn_UploadSKU.Text = "Upload";
             this.btn_UploadSKU.UseVisualStyleBackColor = true;
+            this.btn_UploadSKU.Click += new System.EventHandler(this.btn_UploadSKU_Click);
             // 
             // btn_GenerateInvoice
             // 
@@ -191,22 +195,15 @@
             this.resetPanel.TabIndex = 13;
             this.resetPanel.Visible = false;
             // 
-            // txt_Password
+            // btn_Update
             // 
-            this.txt_Password.Location = new System.Drawing.Point(131, 14);
-            this.txt_Password.Name = "txt_Password";
-            this.txt_Password.PasswordChar = '*';
-            this.txt_Password.Size = new System.Drawing.Size(200, 25);
-            this.txt_Password.TabIndex = 0;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 17);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(83, 20);
-            this.label4.TabIndex = 14;
-            this.label4.Text = "Password:";
+            this.btn_Update.Location = new System.Drawing.Point(166, 111);
+            this.btn_Update.Name = "btn_Update";
+            this.btn_Update.Size = new System.Drawing.Size(165, 33);
+            this.btn_Update.TabIndex = 14;
+            this.btn_Update.Text = "Update";
+            this.btn_Update.UseVisualStyleBackColor = true;
+            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
             // 
             // label6
             // 
@@ -224,15 +221,22 @@
             this.txt_Prefix.Size = new System.Drawing.Size(200, 25);
             this.txt_Prefix.TabIndex = 15;
             // 
-            // btn_Update
+            // label4
             // 
-            this.btn_Update.Location = new System.Drawing.Point(166, 111);
-            this.btn_Update.Name = "btn_Update";
-            this.btn_Update.Size = new System.Drawing.Size(165, 33);
-            this.btn_Update.TabIndex = 14;
-            this.btn_Update.Text = "Update";
-            this.btn_Update.UseVisualStyleBackColor = true;
-            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 17);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(83, 20);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Password:";
+            // 
+            // txt_Password
+            // 
+            this.txt_Password.Location = new System.Drawing.Point(131, 14);
+            this.txt_Password.Name = "txt_Password";
+            this.txt_Password.PasswordChar = '*';
+            this.txt_Password.Size = new System.Drawing.Size(200, 25);
+            this.txt_Password.TabIndex = 0;
             // 
             // Form1
             // 
