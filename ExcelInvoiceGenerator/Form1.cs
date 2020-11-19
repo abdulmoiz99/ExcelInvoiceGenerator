@@ -20,6 +20,17 @@ namespace ExcelInvoiceGenerator
         string password = "P123";
         string[] skuList;
         List<string> unavailableSKU = new List<string>();
+        List<HSNData> hsnDataList = new List<HSNData>();
+        List<double> taxRate = new List<double>();
+
+        class HSNData
+        {
+            public string HSN;
+            public double totalTaxValue;
+            public double quantity;
+            public double rate;
+        };
+
         public Form1()
         {
             InitializeComponent();
@@ -90,7 +101,9 @@ namespace ExcelInvoiceGenerator
                 return;
             }
             unavailableSKU.Clear();
+            hsnDataList.Clear();
             double quantity = 0, basePrice = 0, SGST = 0, CGST = 0, IGST = 0, rate = 0, amount = 0, TotalAmount = 0;
+            string HSN = String.Empty, invoiceNo = String.Empty;
             XLWorkbook Workbook = new XLWorkbook(Application.StartupPath + "\\template.xlsx");
             IXLWorksheet Worksheet = Workbook.Worksheet(1);
             Worksheet.Cell("A1").Value = "TAX INVOICE";
@@ -102,7 +115,7 @@ namespace ExcelInvoiceGenerator
                 Worksheet.Cell("A4").Value = billFrom[1];
                 Worksheet.Cell("A5").Value = billFrom[2];
                 Worksheet.Cell("A6").Value = billFrom[3];
-                Worksheet.Cell("F3").Value = billFrom[4] + counter;
+                Worksheet.Cell("F3").Value = invoiceNo = billFrom[4] + counter;
             }
             catch (Exception)
             {
@@ -148,7 +161,7 @@ namespace ExcelInvoiceGenerator
 
                 //Invoice table header
 
-                Worksheet.Cell("A15").Value = "SKU		";
+                Worksheet.Cell("A15").Value = "SKU";
                 Worksheet.Cell("D15").Value = "QTY";
                 Worksheet.Cell("E15").Value = "BASE PRICE";
                 Worksheet.Cell("F15").Value = "TOTAL TAXABLE VALUE";
@@ -157,7 +170,7 @@ namespace ExcelInvoiceGenerator
                 Worksheet.Cell("I15").Value = "IGST";
                 Worksheet.Cell("J15").Value = "RATE";
                 Worksheet.Cell("K15").Value = "AMOUNT";
-
+                Worksheet.Cell("L15").Value = "HSN";
                 int index = cmb_PartyName.SelectedIndex + 1;
                 //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
                 //string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
@@ -202,10 +215,40 @@ namespace ExcelInvoiceGenerator
                             borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
                             double.TryParse(skus[1], out basePrice);
-                            double.TryParse(skus[2], out SGST);
-                            double.TryParse(skus[3], out CGST);
-                            double.TryParse(skus[4], out IGST);
-                            double.TryParse(skus[5], out rate);
+                            double.TryParse(skus[2], out rate);
+                            HSN = skus[3];
+
+                            if (rb_sameState.Checked)
+                            {
+                                SGST = CGST = basePrice * rate / 200;
+                            }
+                            else 
+                            {
+                                IGST = basePrice * rate/100;
+                            }
+
+                            bool newHSN = true;
+                            foreach (HSNData hsn in hsnDataList) 
+                            {
+                                if (hsn.HSN == HSN && hsn.rate == rate) //Debug required if any issue occurs in future.
+                                {
+                                    newHSN = false;
+                                    hsn.quantity += quantity;
+                                    hsn.totalTaxValue += (basePrice * quantity);
+                                    break;
+                                }
+                            }
+                            if (newHSN) 
+                            {
+                                HSNData data = new HSNData();
+                                data.HSN = HSN;
+                                data.rate = rate;
+                                data.totalTaxValue = (basePrice * quantity);
+                                data.quantity = quantity;
+                                hsnDataList.Add(data);
+                            }
+
+                            taxRate = hsnDataList.Select(p=>p.rate).Distinct().ToList();
 
                             amount = basePrice + SGST + CGST + IGST;
                             TotalAmount += amount * quantity;
@@ -218,6 +261,7 @@ namespace ExcelInvoiceGenerator
                             Worksheet.Cell("J" + startIndexForSku).SetDataType(XLDataType.Number);
                             Worksheet.Cell("J" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
                             Worksheet.Cell("K" + startIndexForSku).Value = amount; //amount
+                            Worksheet.Cell("L" + startIndexForSku).Value = HSN; //HSN
                             startIndexForSku++;
                             break;
                         }
@@ -262,19 +306,128 @@ namespace ExcelInvoiceGenerator
                 startIndexForSku++;
                 Worksheet.Cell("H" + startIndexForSku).Value = "\tFOR HUBBERHOLME";
 
+                startIndexForSku++;
+                startIndexForSku++;
+
+                Worksheet.Cell("B" + startIndexForSku).Value = "Tax Rate";
+                Worksheet.Cell("C" + startIndexForSku).Value = "Total Quantity";
+                Worksheet.Cell("D" + startIndexForSku).Value = "Taxable Value";
+                Worksheet.Cell("E" + startIndexForSku).Value = "CGST";
+                Worksheet.Cell("F" + startIndexForSku).Value = "SGST";
+                Worksheet.Cell("G" + startIndexForSku).Value = "IGST";
+                Worksheet.Cell("H" + startIndexForSku).Value = "Total Tax Amount";
+                Worksheet.Cell("I" + startIndexForSku).Value = "Total Invoice Amount";
+
+                double t_qty = 0;
+                double t_taxValue = 0;
+                double t_sgst = 0;
+                double t_cgst = 0;
+                double t_igst = 0;
+                double t_total = 0;
+                double t_invoiceAmount = 0;
+
+                foreach (double tax in taxRate)
+                {
+                    double qty = 0;
+                    double taxValue = 0;
+                    double sgst = 0;
+                    double cgst = 0;
+                    double igst = 0;
+
+                    foreach (HSNData hsnItem in hsnDataList)
+                    {
+                        if (hsnItem.rate == tax) 
+                        {
+                            qty += hsnItem.quantity;                           
+                            taxValue += hsnItem.totalTaxValue;
+                        }
+                    }
+
+                    if (rb_sameState.Checked)
+                    {
+                        sgst = cgst = taxValue * tax / 200;
+                    }
+                    else
+                    {
+                        igst = taxValue * tax / 100;
+                    }
+
+                    double total = igst + cgst + sgst;
+
+                    startIndexForSku++;
+
+                    t_qty += qty;
+                    t_taxValue += taxValue;
+                    t_sgst += sgst;
+                    t_cgst += cgst;
+                    t_igst += igst;
+                    t_total += total;
+                    t_invoiceAmount += total + taxValue;
+
+                    Worksheet.Cell("B" + startIndexForSku).Value = tax;
+                    Worksheet.Cell("C" + startIndexForSku).Value = qty;
+                    Worksheet.Cell("D" + startIndexForSku).Value = taxValue;
+                    Worksheet.Cell("E" + startIndexForSku).Value = cgst;
+                    Worksheet.Cell("F" + startIndexForSku).Value = sgst;
+                    Worksheet.Cell("G" + startIndexForSku).Value = igst;
+                    Worksheet.Cell("H" + startIndexForSku).Value = total;
+                    Worksheet.Cell("I" + startIndexForSku).Value = total + taxValue;
+                }
+
+                startIndexForSku++;
+
+                Worksheet.Cell("B" + startIndexForSku).Value = "Total";
+                Worksheet.Cell("C" + startIndexForSku).Value = t_qty;
+                Worksheet.Cell("D" + startIndexForSku).Value = t_taxValue;
+                Worksheet.Cell("E" + startIndexForSku).Value = t_cgst;
+                Worksheet.Cell("F" + startIndexForSku).Value = t_sgst;
+                Worksheet.Cell("G" + startIndexForSku).Value = t_igst;
+                Worksheet.Cell("H" + startIndexForSku).Value = t_total;
+                Worksheet.Cell("I" + startIndexForSku).Value = t_invoiceAmount;
+
+                startIndexForSku++;
+                startIndexForSku++;
+
+                Worksheet.Cell("B" + startIndexForSku).Value = "DATE";
+                Worksheet.Cell("C" + startIndexForSku).Value = "INVOICE NO";
+                Worksheet.Cell("D" + startIndexForSku).Value = "PO NO";
+                Worksheet.Cell("E" + startIndexForSku).Value = "PARTY";
+                Worksheet.Cell("F" + startIndexForSku).Value = "HSN";
+                Worksheet.Cell("G" + startIndexForSku).Value = "Tax";
+                Worksheet.Cell("H" + startIndexForSku).Value = "Qty";
+                Worksheet.Cell("I" + startIndexForSku).Value = "Total Taxable Value";
+                Worksheet.Cell("J" + startIndexForSku).Value = "Total Tax";
+                Worksheet.Cell("K" + startIndexForSku).Value = "Final";
+
+                foreach (HSNData hsnItem in hsnDataList) 
+                {
+                    startIndexForSku++;
+
+                    Worksheet.Cell("B" + startIndexForSku).Value = dateTimePicker1.Value.ToShortDateString();
+                    Worksheet.Cell("C" + startIndexForSku).Value = invoiceNo;
+                    Worksheet.Cell("D" + startIndexForSku).Value = txt_OrderNo.Text;
+                    Worksheet.Cell("E" + startIndexForSku).Value = cmb_PartyName.Text;
+                    Worksheet.Cell("F" + startIndexForSku).Value = hsnItem.HSN;
+                    Worksheet.Cell("G" + startIndexForSku).Value = hsnItem.rate;
+                    Worksheet.Cell("H" + startIndexForSku).Value = hsnItem.quantity;
+                    Worksheet.Cell("I" + startIndexForSku).Value = hsnItem.totalTaxValue;
+                    Worksheet.Cell("J" + startIndexForSku).Value = (hsnItem.totalTaxValue * hsnItem.rate)/100;
+                    Worksheet.Cell("K" + startIndexForSku).Value = (hsnItem.totalTaxValue  * hsnItem.rate / 100) + (hsnItem.totalTaxValue);
+                }
 
                 //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog();    
-                saveFileDialog1.Title = "Save Invoice";
-                saveFileDialog1.CheckPathExists = true;
-                saveFileDialog1.DefaultExt = "xlsx";
-                saveFileDialog1.Filter = "Excel (*.xlsx)|*.xlsx"; ;
-                saveFileDialog1.RestoreDirectory = true;
-                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    Workbook.SaveAs(saveFileDialog1.FileName);
-                }
-                     //Naqqash Address
+                Workbook.SaveAs(Application.StartupPath + @"\file.xlsx"); //Moiz Address
+                //SaveFileDialog saveFileDialog1 = new SaveFileDialog();    
+                //saveFileDialog1.Title = "Save Invoice";
+                //saveFileDialog1.CheckPathExists = true;
+                //saveFileDialog1.DefaultExt = "xlsx";
+                //saveFileDialog1.Filter = "Excel (*.xlsx)|*.xlsx"; ;
+                //saveFileDialog1.RestoreDirectory = true;
+                //if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                //{
+                //    Workbook.SaveAs(saveFileDialog1.FileName);
+                //}
+                //Naqqash Address
                 unavailableSKU = FindNewSKU();
 
                 counter++;
