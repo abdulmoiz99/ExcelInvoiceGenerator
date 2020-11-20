@@ -639,15 +639,6 @@ namespace ExcelInvoiceGenerator
         {
             if (password == txt_Password.Text)
             {
-                string[] billFrom = File.ReadAllLines(Application.StartupPath + "\\Setup\\billFrom.txt");
-                billFrom[4] = txt_Prefix.Text;
-                using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\Setup\\billFrom.txt", false))
-                {
-                    for (int i = 0; i < billFrom.Length; i++)
-                    {
-                        sw.WriteLine(billFrom[i]);
-                    }
-                }
                 counter = 0;
                 lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
                 using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.dat", false))
@@ -655,15 +646,14 @@ namespace ExcelInvoiceGenerator
                     sw.Write(counter);
                 }
                 MessageBox.Show("Invoice number reset successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                resetPanel.Visible = false;
+                btn_Reset.Visible = true;
             }
             else
             {
                 MessageBox.Show("Invalid Password!", "Failure", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             txt_Password.Clear();
-            txt_Prefix.Clear();
-            resetPanel.Visible = false;
-            btn_Reset.Visible = true;
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -704,6 +694,12 @@ namespace ExcelInvoiceGenerator
             {
                 throw;
             }
+        }
+
+        private void btn_Cancel_Click(object sender, EventArgs e)
+        {
+            resetPanel.Visible = false;
+            btn_Reset.Visible = true;
         }
     }
 }
