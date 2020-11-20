@@ -60,7 +60,7 @@
             this.cmb_PartyName.FormattingEnabled = true;
             this.cmb_PartyName.Location = new System.Drawing.Point(141, 71);
             this.cmb_PartyName.Name = "cmb_PartyName";
-            this.cmb_PartyName.Size = new System.Drawing.Size(345, 27);
+            this.cmb_PartyName.Size = new System.Drawing.Size(345, 29);
             this.cmb_PartyName.TabIndex = 1;
             this.cmb_PartyName.SelectedIndexChanged += new System.EventHandler(this.cmb_PartyName_SelectedIndexChanged);
             // 
@@ -69,7 +69,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(29, 74);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(98, 20);
+            this.label1.Size = new System.Drawing.Size(106, 21);
             this.label1.TabIndex = 2;
             this.label1.Text = "Party Name:";
             // 
@@ -91,7 +91,7 @@
             this.label3.ForeColor = System.Drawing.Color.Blue;
             this.label3.Location = new System.Drawing.Point(515, 74);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(141, 20);
+            this.label3.Size = new System.Drawing.Size(150, 21);
             this.label3.TabIndex = 4;
             this.label3.Text = "Create New Party";
             this.label3.Click += new System.EventHandler(this.label3_Click);
@@ -123,7 +123,7 @@
             this.lab_Address.AutoSize = true;
             this.lab_Address.Location = new System.Drawing.Point(21, 40);
             this.lab_Address.Name = "lab_Address";
-            this.lab_Address.Size = new System.Drawing.Size(98, 20);
+            this.lab_Address.Size = new System.Drawing.Size(106, 21);
             this.lab_Address.TabIndex = 3;
             this.lab_Address.Text = "Party Name:";
             // 
@@ -132,7 +132,7 @@
             this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePicker1.Location = new System.Drawing.Point(142, 153);
             this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(344, 25);
+            this.dateTimePicker1.Size = new System.Drawing.Size(344, 27);
             this.dateTimePicker1.TabIndex = 7;
             // 
             // label5
@@ -140,7 +140,7 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(82, 159);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 20);
+            this.label5.Size = new System.Drawing.Size(54, 21);
             this.label5.TabIndex = 8;
             this.label5.Text = "Date:";
             // 
@@ -170,7 +170,7 @@
             this.lab_notFound.ForeColor = System.Drawing.Color.Red;
             this.lab_notFound.Location = new System.Drawing.Point(12, 453);
             this.lab_notFound.Name = "lab_notFound";
-            this.lab_notFound.Size = new System.Drawing.Size(170, 20);
+            this.lab_notFound.Size = new System.Drawing.Size(182, 21);
             this.lab_notFound.TabIndex = 11;
             this.lab_notFound.Text = "[Check if sku not exist]";
             this.lab_notFound.Visible = false;
@@ -214,7 +214,7 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 66);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(113, 20);
+            this.label6.Size = new System.Drawing.Size(116, 21);
             this.label6.TabIndex = 16;
             this.label6.Text = "Invoice Prefix:";
             // 
@@ -222,7 +222,7 @@
             // 
             this.txt_Prefix.Location = new System.Drawing.Point(131, 63);
             this.txt_Prefix.Name = "txt_Prefix";
-            this.txt_Prefix.Size = new System.Drawing.Size(200, 25);
+            this.txt_Prefix.Size = new System.Drawing.Size(200, 27);
             this.txt_Prefix.TabIndex = 15;
             // 
             // label4
@@ -230,7 +230,7 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(12, 17);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(83, 20);
+            this.label4.Size = new System.Drawing.Size(86, 21);
             this.label4.TabIndex = 14;
             this.label4.Text = "Password:";
             // 
@@ -239,7 +239,7 @@
             this.txt_Password.Location = new System.Drawing.Point(131, 14);
             this.txt_Password.Name = "txt_Password";
             this.txt_Password.PasswordChar = '*';
-            this.txt_Password.Size = new System.Drawing.Size(200, 25);
+            this.txt_Password.Size = new System.Drawing.Size(200, 27);
             this.txt_Password.TabIndex = 0;
             // 
             // label7
@@ -247,7 +247,7 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(46, 116);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(81, 20);
+            this.label7.Size = new System.Drawing.Size(85, 21);
             this.label7.TabIndex = 15;
             this.label7.Text = "Order No:";
             // 
@@ -255,7 +255,7 @@
             // 
             this.txt_OrderNo.Location = new System.Drawing.Point(141, 113);
             this.txt_OrderNo.Name = "txt_OrderNo";
-            this.txt_OrderNo.Size = new System.Drawing.Size(345, 25);
+            this.txt_OrderNo.Size = new System.Drawing.Size(345, 27);
             this.txt_OrderNo.TabIndex = 16;
             // 
             // rb_sameState
@@ -264,7 +264,7 @@
             this.rb_sameState.Checked = true;
             this.rb_sameState.Location = new System.Drawing.Point(142, 194);
             this.rb_sameState.Name = "rb_sameState";
-            this.rb_sameState.Size = new System.Drawing.Size(108, 24);
+            this.rb_sameState.Size = new System.Drawing.Size(119, 25);
             this.rb_sameState.TabIndex = 17;
             this.rb_sameState.TabStop = true;
             this.rb_sameState.Text = "Same State";
@@ -275,14 +275,14 @@
             this.rb_differentState.AutoSize = true;
             this.rb_differentState.Location = new System.Drawing.Point(321, 194);
             this.rb_differentState.Name = "rb_differentState";
-            this.rb_differentState.Size = new System.Drawing.Size(131, 24);
+            this.rb_differentState.Size = new System.Drawing.Size(142, 25);
             this.rb_differentState.TabIndex = 18;
             this.rb_differentState.Text = "Different State";
             this.rb_differentState.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1093, 525);
             this.Controls.Add(this.rb_differentState);

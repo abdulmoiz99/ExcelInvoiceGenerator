@@ -17,7 +17,7 @@ namespace ExcelInvoiceGenerator
     public partial class Form1 : Form
     {
         int counter;
-        string password = "P123";
+        string password = "Password123";
         string[] skuList;
         List<string> unavailableSKU = new List<string>();
         List<HSNData> hsnDataList = new List<HSNData>();
@@ -41,8 +41,8 @@ namespace ExcelInvoiceGenerator
             List<string> orderedSKU = new List<string>();
             List<string> availableSKU = new List<string>();
             List<string> newSKU = new List<string>();
-            string[] skuDetails = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
-            for (int i = 0; i < skuList.Length; i++) 
+            string[] skuDetails = File.ReadAllLines(Application.StartupPath + @"\Database\SKUDetails.csv");
+            for (int i = 0; i < skuList.Length; i++)
             {
                 orderedSKU.Add(skuList[i].Split(',')[0]);
             }
@@ -51,9 +51,9 @@ namespace ExcelInvoiceGenerator
                 availableSKU.Add(skuDetails[i].Split(',')[0]);
             }
             orderedSKU = orderedSKU.Distinct().ToList();
-            foreach (string SKU in orderedSKU) 
+            foreach (string SKU in orderedSKU)
             {
-                if (!availableSKU.Contains(SKU)) 
+                if (!availableSKU.Contains(SKU))
                 {
                     newSKU.Add(SKU);
                 }
@@ -64,7 +64,7 @@ namespace ExcelInvoiceGenerator
         private void cmb_PartyName_Load(object sender, EventArgs e)
         {
             counter = Convert.ToInt32(File.ReadAllText(Application.StartupPath + "\\config.dat"));
-            string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
+            string[] lineOfContents = File.ReadAllLines(Application.StartupPath + @"\Database\PartyDetails.csv");
             foreach (var line in lineOfContents)
             {
                 string[] tokens = line.Split(',');
@@ -77,7 +77,7 @@ namespace ExcelInvoiceGenerator
         private void cmb_PartyName_SelectedIndexChanged(object sender, EventArgs e)
         {
             int index = cmb_PartyName.SelectedIndex + 1;
-            string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
+            string[] lineOfContents = File.ReadAllLines(Application.StartupPath + @"\Database\PartyDetails.csv");
             foreach (var line in lineOfContents)
             {
                 string[] tokens = CSVParser(line);
@@ -90,16 +90,17 @@ namespace ExcelInvoiceGenerator
 
         private void label3_Click(object sender, EventArgs e)
         {
-            Process.Start(Application.StartupPath + "\\PartyDetails.csv");
+            Process.Start(Application.StartupPath + @"\Database\PartyDetails.csv");
         }
 
         private void btn_GenerateInvoice_Click(object sender, EventArgs e)
         {
-            if (skuList == null) 
+            if (skuList == null)
             {
                 MessageBox.Show("Please upload the SKU list first!", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+
             unavailableSKU.Clear();
             hsnDataList.Clear();
             double quantity = 0, basePrice = 0, SGST = 0, CGST = 0, IGST = 0, rate = 0, amount = 0, TotalAmount = 0;
@@ -121,14 +122,14 @@ namespace ExcelInvoiceGenerator
             {
                 MessageBox.Show("billFrom: No such file in directory or the data is missing!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            finally 
+            finally
             {
                 Worksheet.Cell("A7").Value = "BILL TO:";
-                string[] parties = File.ReadAllLines(Application.StartupPath + "\\PartyDetails.csv");
-                foreach (string line in parties) 
+                string[] parties = File.ReadAllLines(Application.StartupPath + @"\Database\PartyDetails.csv");
+                foreach (string line in parties)
                 {
                     string[] tokens = CSVParser(line);
-                    if (tokens[1] == cmb_PartyName.Text) 
+                    if (tokens[1] == cmb_PartyName.Text)
                     {
                         Worksheet.Cell("I5").Value = tokens[1];
                         Worksheet.Cell("A8").Value = tokens[2];
@@ -152,6 +153,7 @@ namespace ExcelInvoiceGenerator
 
                 Worksheet.Cell("F2").Value = "INVOICE NO.";
                 Worksheet.Cell("F4").Value = "BUYER'S ORDER NO. & DATE:	";
+                Worksheet.Cell("F5").Value = txt_OrderNo.Text;
                 Worksheet.Cell("F7").Value = "Ship To:-";
 
                 Worksheet.Cell("I4").Value = "PARTY NAME AS PER BOOKS";
@@ -175,7 +177,7 @@ namespace ExcelInvoiceGenerator
                 //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
                 //string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
                 IDictionary<string, int> skuQty = new Dictionary<string, int>();
-                for (int i = 0; i < skuList.Length; i++) 
+                for (int i = 0; i < skuList.Length; i++)
                 {
                     var record = skuList[i];
                     if (record == null) continue;
@@ -190,12 +192,12 @@ namespace ExcelInvoiceGenerator
                     }
                 }
                 int startIndexForSku = 16;
-                string[] sku = File.ReadAllLines(Application.StartupPath + "\\SKUDetails.csv");
+                string[] sku = File.ReadAllLines(Application.StartupPath + @"\Database\SKUDetails.csv");
                 foreach (KeyValuePair<string, int> entry in skuQty)
                 {
                     //find sku in the database
                     //string[] sku = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKUDetails.csv"); //Moiz Address
-                     //Naqqash Address
+                    //Naqqash Address
 
                     foreach (var item in sku)
                     {
@@ -210,7 +212,7 @@ namespace ExcelInvoiceGenerator
                             var range = Worksheet.Range("A" + startIndexForSku + ":C" + startIndexForSku);
                             range.Merge();
                             //to set border
-                            var borderRange = Worksheet.Range("A" + startIndexForSku + ":K" + startIndexForSku);
+                            var borderRange = Worksheet.Range("A" + startIndexForSku + ":L" + startIndexForSku);
                             borderRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                             borderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
@@ -222,13 +224,13 @@ namespace ExcelInvoiceGenerator
                             {
                                 SGST = CGST = basePrice * rate / 200;
                             }
-                            else 
+                            else
                             {
-                                IGST = basePrice * rate/100;
+                                IGST = basePrice * rate / 100;
                             }
 
                             bool newHSN = true;
-                            foreach (HSNData hsn in hsnDataList) 
+                            foreach (HSNData hsn in hsnDataList)
                             {
                                 if (hsn.HSN == HSN && hsn.rate == rate) //Debug required if any issue occurs in future.
                                 {
@@ -238,7 +240,7 @@ namespace ExcelInvoiceGenerator
                                     break;
                                 }
                             }
-                            if (newHSN) 
+                            if (newHSN)
                             {
                                 HSNData data = new HSNData();
                                 data.HSN = HSN;
@@ -248,7 +250,7 @@ namespace ExcelInvoiceGenerator
                                 hsnDataList.Add(data);
                             }
 
-                            taxRate = hsnDataList.Select(p=>p.rate).Distinct().ToList();
+                            taxRate = hsnDataList.Select(p => p.rate).Distinct().ToList();
 
                             amount = basePrice + SGST + CGST + IGST;
                             TotalAmount += amount * quantity;
@@ -265,10 +267,10 @@ namespace ExcelInvoiceGenerator
                             startIndexForSku++;
                             break;
                         }
-                        else 
+                        else
                         {
 
-                            
+
                         }
 
                     }
@@ -286,7 +288,7 @@ namespace ExcelInvoiceGenerator
                 var range1 = Worksheet.Range("D" + startIndexForSku + ":H" + startIndexForSku);
                 range1.Merge();
                 //to set border
-                var borderRange2 = Worksheet.Range("B" + startIndexForSku + ":K" + startIndexForSku);
+                var borderRange2 = Worksheet.Range("B" + startIndexForSku + ":L" + startIndexForSku);
                 borderRange2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 borderRange2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
@@ -300,24 +302,83 @@ namespace ExcelInvoiceGenerator
                 //signature and date
                 startIndexForSku++;
                 startIndexForSku++;
+                var borderRange3 = Worksheet.Range("H" + startIndexForSku + ":L" + startIndexForSku);
+                borderRange3.Style.Border.TopBorder = XLBorderStyleValues.Thin;
                 Worksheet.Cell("H" + startIndexForSku).Value = "Signature & Date:";
-                startIndexForSku++;
-                startIndexForSku++;
-                startIndexForSku++;
+                borderRange3.Merge();
+                for (int i = 0; i < 4; i++)
+                {
+                    borderRange3 = Worksheet.Range("H" + startIndexForSku + ":L" + startIndexForSku);
+                    borderRange3.Merge();
+                    borderRange3.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                    borderRange3.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                    startIndexForSku++;
+                }
+
+
                 Worksheet.Cell("H" + startIndexForSku).Value = "\tFOR HUBBERHOLME";
 
+                borderRange3 = Worksheet.Range("H" + startIndexForSku + ":L" + startIndexForSku);
+                borderRange3.Merge();
+                borderRange3.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                borderRange3.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                borderRange3.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+
                 startIndexForSku++;
+                startIndexForSku++;
+
+                //tax summary
+                var range2 = Worksheet.Range("B" + startIndexForSku + ":I" + startIndexForSku);
+                range2.Merge();
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                Worksheet.Cell("B" + startIndexForSku).Value = "Tax Summary";
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                 startIndexForSku++;
 
                 Worksheet.Cell("B" + startIndexForSku).Value = "Tax Rate";
-                Worksheet.Cell("C" + startIndexForSku).Value = "Total Quantity";
-                Worksheet.Cell("D" + startIndexForSku).Value = "Taxable Value";
-                Worksheet.Cell("E" + startIndexForSku).Value = "CGST";
-                Worksheet.Cell("F" + startIndexForSku).Value = "SGST";
-                Worksheet.Cell("G" + startIndexForSku).Value = "IGST";
-                Worksheet.Cell("H" + startIndexForSku).Value = "Total Tax Amount";
-                Worksheet.Cell("I" + startIndexForSku).Value = "Total Invoice Amount";
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
 
+                Worksheet.Cell("C" + startIndexForSku).Value = "Total Quantity";
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("D" + startIndexForSku).Value = "Taxable Value";
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("E" + startIndexForSku).Value = "CGST";
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("F" + startIndexForSku).Value = "SGST";
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("G" + startIndexForSku).Value = "IGST";
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+
+                Worksheet.Cell("H" + startIndexForSku).Value = "Total Tax Amount";
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("I" + startIndexForSku).Value = "Total Invoice Amount";
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+                range2 = Worksheet.Range("B" + startIndexForSku + ":I" + startIndexForSku);
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 double t_qty = 0;
                 double t_taxValue = 0;
                 double t_sgst = 0;
@@ -336,9 +397,9 @@ namespace ExcelInvoiceGenerator
 
                     foreach (HSNData hsnItem in hsnDataList)
                     {
-                        if (hsnItem.rate == tax) 
+                        if (hsnItem.rate == tax)
                         {
-                            qty += hsnItem.quantity;                           
+                            qty += hsnItem.quantity;
                             taxValue += hsnItem.totalTaxValue;
                         }
                     }
@@ -364,7 +425,9 @@ namespace ExcelInvoiceGenerator
                     t_total += total;
                     t_invoiceAmount += total + taxValue;
 
-                    Worksheet.Cell("B" + startIndexForSku).Value = tax;
+                    Worksheet.Cell("B" + startIndexForSku).Value = tax + "%";
+                    Worksheet.Cell("B" + startIndexForSku).SetDataType(XLDataType.Number);
+                    Worksheet.Cell("B" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
                     Worksheet.Cell("C" + startIndexForSku).Value = qty;
                     Worksheet.Cell("D" + startIndexForSku).Value = taxValue;
                     Worksheet.Cell("E" + startIndexForSku).Value = cgst;
@@ -372,6 +435,9 @@ namespace ExcelInvoiceGenerator
                     Worksheet.Cell("G" + startIndexForSku).Value = igst;
                     Worksheet.Cell("H" + startIndexForSku).Value = total;
                     Worksheet.Cell("I" + startIndexForSku).Value = total + taxValue;
+                    range2 = Worksheet.Range("B" + startIndexForSku + ":I" + startIndexForSku);
+                    range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 }
 
                 startIndexForSku++;
@@ -384,22 +450,77 @@ namespace ExcelInvoiceGenerator
                 Worksheet.Cell("G" + startIndexForSku).Value = t_igst;
                 Worksheet.Cell("H" + startIndexForSku).Value = t_total;
                 Worksheet.Cell("I" + startIndexForSku).Value = t_invoiceAmount;
-
+                range2 = Worksheet.Range("B" + startIndexForSku + ":I" + startIndexForSku);
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 startIndexForSku++;
+                startIndexForSku++;
+
+
+                //HSN SUMMARY 
+                range2 = Worksheet.Range("B" + startIndexForSku + ":K" + startIndexForSku);
+                range2.Merge();
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                Worksheet.Cell("B" + startIndexForSku).Value = "HSN Summary";
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                 startIndexForSku++;
 
                 Worksheet.Cell("B" + startIndexForSku).Value = "DATE";
-                Worksheet.Cell("C" + startIndexForSku).Value = "INVOICE NO";
-                Worksheet.Cell("D" + startIndexForSku).Value = "PO NO";
-                Worksheet.Cell("E" + startIndexForSku).Value = "PARTY";
-                Worksheet.Cell("F" + startIndexForSku).Value = "HSN";
-                Worksheet.Cell("G" + startIndexForSku).Value = "Tax";
-                Worksheet.Cell("H" + startIndexForSku).Value = "Qty";
-                Worksheet.Cell("I" + startIndexForSku).Value = "Total Taxable Value";
-                Worksheet.Cell("J" + startIndexForSku).Value = "Total Tax";
-                Worksheet.Cell("K" + startIndexForSku).Value = "Final";
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("B" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
 
-                foreach (HSNData hsnItem in hsnDataList) 
+                Worksheet.Cell("C" + startIndexForSku).Value = "INVOICE NO";
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("C" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("D" + startIndexForSku).Value = "PO NO";
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("E" + startIndexForSku).Value = "PARTY";
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("E" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("F" + startIndexForSku).Value = "HSN";
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("F" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("G" + startIndexForSku).Value = "Tax";
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("G" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("H" + startIndexForSku).Value = "Qty";
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("H" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("I" + startIndexForSku).Value = "Total Taxable Value";
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("I" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("J" + startIndexForSku).Value = "Total Tax";
+                Worksheet.Cell("J" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("J" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("J" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                Worksheet.Cell("K" + startIndexForSku).Value = "Final";
+                Worksheet.Cell("K" + startIndexForSku).Style.Alignment.WrapText = true;
+                Worksheet.Cell("K" + startIndexForSku).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                Worksheet.Cell("K" + startIndexForSku).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                range2 = Worksheet.Range("B" + startIndexForSku + ":k" + startIndexForSku);
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                double totalQty = 0, totalTaxableValue = 0, totalTax = 0;
+                foreach (HSNData hsnItem in hsnDataList)
                 {
                     startIndexForSku++;
 
@@ -408,15 +529,37 @@ namespace ExcelInvoiceGenerator
                     Worksheet.Cell("D" + startIndexForSku).Value = txt_OrderNo.Text;
                     Worksheet.Cell("E" + startIndexForSku).Value = cmb_PartyName.Text;
                     Worksheet.Cell("F" + startIndexForSku).Value = hsnItem.HSN;
-                    Worksheet.Cell("G" + startIndexForSku).Value = hsnItem.rate;
+                    Worksheet.Cell("G" + startIndexForSku).Value = hsnItem.rate + "%";
+                    Worksheet.Cell("G" + startIndexForSku).SetDataType(XLDataType.Number);
+                    Worksheet.Cell("G" + startIndexForSku).Style.NumberFormat.Format = "0.00%";
                     Worksheet.Cell("H" + startIndexForSku).Value = hsnItem.quantity;
+                    totalQty += hsnItem.quantity;
                     Worksheet.Cell("I" + startIndexForSku).Value = hsnItem.totalTaxValue;
-                    Worksheet.Cell("J" + startIndexForSku).Value = (hsnItem.totalTaxValue * hsnItem.rate)/100;
-                    Worksheet.Cell("K" + startIndexForSku).Value = (hsnItem.totalTaxValue  * hsnItem.rate / 100) + (hsnItem.totalTaxValue);
-                }
+                    totalTaxableValue += hsnItem.totalTaxValue;
+                    Worksheet.Cell("J" + startIndexForSku).Value = (hsnItem.totalTaxValue * hsnItem.rate) / 100;
+                    totalTax += (hsnItem.totalTaxValue * hsnItem.rate) / 100;
+                    Worksheet.Cell("K" + startIndexForSku).Value = (hsnItem.totalTaxValue * hsnItem.rate / 100) + (hsnItem.totalTaxValue);
 
-                //Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx"); //Moiz Address
-                Workbook.SaveAs(Application.StartupPath + @"\file.xlsx"); //Moiz Address
+                    range2 = Worksheet.Range("B" + startIndexForSku + ":k" + startIndexForSku);
+                    range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                }
+                startIndexForSku++;
+                Worksheet.Cell("F" + startIndexForSku).Value = "Total";
+                Worksheet.Cell("F" + startIndexForSku).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                Worksheet.Cell("H" + startIndexForSku).Value = totalQty;
+                Worksheet.Cell("I" + startIndexForSku).Value = totalTaxableValue;
+                Worksheet.Cell("J" + startIndexForSku).Value = totalTax;
+                Worksheet.Cell("K" + startIndexForSku).Value = totalTaxableValue + totalTax;
+                range2 = Worksheet.Range("H" + startIndexForSku + ":k" + startIndexForSku);
+                range2.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                range2.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx");
+                //Moiz Address
+                //Workbook.SaveAs(Application.StartupPath + @"\file.xlsx"); //Moiz Address
                 //SaveFileDialog saveFileDialog1 = new SaveFileDialog();    
                 //saveFileDialog1.Title = "Save Invoice";
                 //saveFileDialog1.CheckPathExists = true;
@@ -431,20 +574,19 @@ namespace ExcelInvoiceGenerator
                 unavailableSKU = FindNewSKU();
 
                 counter++;
-                lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString(); 
+                lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
                 using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.dat", false))
                 {
                     sw.Write(counter);
                 }
-                if (unavailableSKU.Count > 0) 
+                if (unavailableSKU.Count > 0)
                 {
                     lab_notFound.Text = unavailableSKU.Count + " items not found. [Download Log]";
                     lab_notFound.Visible = true;
                 }
             }
         }
-        
-        private string[] CSVParser(string csvLine) 
+        private string[] CSVParser(string csvLine)
         {
             TextFieldParser parser = new TextFieldParser(new StringReader(csvLine));
 
@@ -458,7 +600,7 @@ namespace ExcelInvoiceGenerator
 
             while (!parser.EndOfData)
             {
-               fields = parser.ReadFields();
+                fields = parser.ReadFields();
             }
 
             parser.Close();
@@ -478,7 +620,7 @@ namespace ExcelInvoiceGenerator
             {
                 using (StreamWriter sw = new StreamWriter(saveDlg.FileName, true))
                 {
-                    foreach (string sku in unavailableSKU) 
+                    foreach (string sku in unavailableSKU)
                     {
                         sw.WriteLine(sku);
                     }
@@ -514,7 +656,7 @@ namespace ExcelInvoiceGenerator
                 }
                 MessageBox.Show("Invoice number reset successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else 
+            else
             {
                 MessageBox.Show("Invalid Password!", "Failure", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
