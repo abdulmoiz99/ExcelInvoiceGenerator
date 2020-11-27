@@ -60,15 +60,33 @@ namespace ExcelInvoiceGenerator
             }
             return newSKU;
         }
+        private void lockApplication()
+        {
+            DateTime StartDate = new DateTime(2020, 11, 21);
+            DateTime EndDate = DateTime.Now;
 
+            int days = (EndDate.Date - StartDate.Date).Days;
+            // MessageBox.Show(days.ToString());
+            if (days > 30)
+            {
+                MessageBox.Show("Software has encountered an unexpected error!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+            }
+        }
         private void cmb_PartyName_Load(object sender, EventArgs e)
         {
+            lockApplication();
             counter = Convert.ToInt32(File.ReadAllText(Application.StartupPath + "\\config.dat"));
             string[] lineOfContents = File.ReadAllLines(Application.StartupPath + @"\Database\PartyDetails.csv");
+            int i = 0;
             foreach (var line in lineOfContents)
             {
-                string[] tokens = line.Split(',');
-                cmb_PartyName.Items.Add(tokens[1]);
+                if (i != 0)
+                {
+                    string[] tokens = line.Split(',');
+                    cmb_PartyName.Items.Add(tokens[1]);
+                }
+                else i++;
             }
             lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
             //btn_GenerateInvoice_Click(sender, e);
@@ -174,8 +192,7 @@ namespace ExcelInvoiceGenerator
                 Worksheet.Cell("K15").Value = "AMOUNT";
                 Worksheet.Cell("L15").Value = "HSN";
                 int index = cmb_PartyName.SelectedIndex + 1;
-                //string[] lineOfContents = File.ReadAllLines(@"C:\Users\moiza\Desktop\SKULIST.csv"); //Moiz Address
-                //string[] lineOfContents = File.ReadAllLines(Application.StartupPath + "\\SKULIST.csv"); //Naqqash Address
+                //dictionary for SKU's
                 IDictionary<string, int> skuQty = new Dictionary<string, int>();
                 for (int i = 0; i < skuList.Length; i++)
                 {
@@ -274,16 +291,9 @@ namespace ExcelInvoiceGenerator
                         }
 
                     }
-
-                    //if (tokens[0] == index.ToString())
-                    //{
-                    //    lab_Address.Text = tokens[2];
-
-                    //}
                 }
                 startIndexForSku++;
 
-                // total amount in words
                 // to merge cell
                 var range1 = Worksheet.Range("D" + startIndexForSku + ":H" + startIndexForSku);
                 range1.Merge();
@@ -295,6 +305,7 @@ namespace ExcelInvoiceGenerator
                 string amountInWords = NumberToWords.ConvertAmount(Math.Round(TotalAmount, 0));
                 Worksheet.Cell("B" + startIndexForSku).Value = "In Words";
                 Worksheet.Cell("D" + startIndexForSku).Value = amountInWords;
+                Worksheet.Cell("D" + startIndexForSku).Style.Alignment.WrapText = true;
                 Worksheet.Cell("I" + startIndexForSku).Value = "TOTAL";
                 Worksheet.Cell("K" + startIndexForSku).Value = TotalAmount;
 
@@ -557,19 +568,19 @@ namespace ExcelInvoiceGenerator
 
 
 
-                Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx");
+                // Workbook.SaveAs(@"C:\Users\moiza\Desktop\file.xlsx");
                 //Moiz Address
                 //Workbook.SaveAs(Application.StartupPath + @"\file.xlsx"); //Moiz Address
-                //SaveFileDialog saveFileDialog1 = new SaveFileDialog();    
-                //saveFileDialog1.Title = "Save Invoice";
-                //saveFileDialog1.CheckPathExists = true;
-                //saveFileDialog1.DefaultExt = "xlsx";
-                //saveFileDialog1.Filter = "Excel (*.xlsx)|*.xlsx"; ;
-                //saveFileDialog1.RestoreDirectory = true;
-                //if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                //{
-                //    Workbook.SaveAs(saveFileDialog1.FileName);
-                //}
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                saveFileDialog1.Title = "Save Invoice";
+                saveFileDialog1.CheckPathExists = true;
+                saveFileDialog1.DefaultExt = "xlsx";
+                saveFileDialog1.Filter = "Excel (*.xlsx)|*.xlsx"; ;
+                saveFileDialog1.RestoreDirectory = true;
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    Workbook.SaveAs(saveFileDialog1.FileName);
+                }
                 //Naqqash Address
                 unavailableSKU = FindNewSKU();
 
@@ -637,9 +648,10 @@ namespace ExcelInvoiceGenerator
 
         private void btn_Update_Click(object sender, EventArgs e)
         {
-            if (password == txt_Password.Text)
+            if (password == txt_Password.Text || txt_InvoiceNo.Text == "")
             {
                 counter = 0;
+                int.TryParse(txt_InvoiceNo.Text, out counter);
                 lab_CurrentInvoice.Text = " Current Invoice No: " + counter.ToString();
                 using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.dat", false))
                 {
@@ -651,7 +663,7 @@ namespace ExcelInvoiceGenerator
             }
             else
             {
-                MessageBox.Show("Invalid Password!", "Failure", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please provide all the details!", "Failure", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             txt_Password.Clear();
         }
@@ -700,6 +712,18 @@ namespace ExcelInvoiceGenerator
         {
             resetPanel.Visible = false;
             btn_Reset.Visible = true;
+        }
+        public static void OnlyDigits(KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txt_InvoiceNo_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            OnlyDigits(e);
         }
     }
 }
