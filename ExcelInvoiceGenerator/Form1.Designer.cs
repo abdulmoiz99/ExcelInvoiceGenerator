@@ -39,9 +39,10 @@
             this.label5 = new System.Windows.Forms.Label();
             this.btn_UploadSKU = new System.Windows.Forms.Button();
             this.btn_GenerateInvoice = new System.Windows.Forms.Button();
-            this.lab_notFound = new System.Windows.Forms.Label();
             this.btn_Reset = new System.Windows.Forms.Button();
             this.resetPanel = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txt_InvoiceNo = new System.Windows.Forms.TextBox();
             this.btn_Cancel = new System.Windows.Forms.Button();
             this.btn_Update = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
@@ -50,8 +51,8 @@
             this.txt_OrderNo = new System.Windows.Forms.TextBox();
             this.rb_sameState = new System.Windows.Forms.RadioButton();
             this.rb_differentState = new System.Windows.Forms.RadioButton();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txt_InvoiceNo = new System.Windows.Forms.TextBox();
+            this.txt_TCS = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.resetPanel.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,7 @@
             // cmb_PartyName
             // 
             this.cmb_PartyName.FormattingEnabled = true;
-            this.cmb_PartyName.Location = new System.Drawing.Point(141, 71);
+            this.cmb_PartyName.Location = new System.Drawing.Point(142, 72);
             this.cmb_PartyName.Name = "cmb_PartyName";
             this.cmb_PartyName.Size = new System.Drawing.Size(345, 29);
             this.cmb_PartyName.TabIndex = 1;
@@ -68,7 +69,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(29, 74);
+            this.label1.Location = new System.Drawing.Point(30, 74);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(106, 21);
             this.label1.TabIndex = 2;
@@ -131,7 +132,7 @@
             // dateTimePicker1
             // 
             this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dateTimePicker1.Location = new System.Drawing.Point(142, 153);
+            this.dateTimePicker1.Location = new System.Drawing.Point(142, 181);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(344, 27);
             this.dateTimePicker1.TabIndex = 7;
@@ -139,7 +140,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(82, 159);
+            this.label5.Location = new System.Drawing.Point(82, 185);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(54, 21);
             this.label5.TabIndex = 8;
@@ -147,7 +148,7 @@
             // 
             // btn_UploadSKU
             // 
-            this.btn_UploadSKU.Location = new System.Drawing.Point(141, 236);
+            this.btn_UploadSKU.Location = new System.Drawing.Point(142, 245);
             this.btn_UploadSKU.Name = "btn_UploadSKU";
             this.btn_UploadSKU.Size = new System.Drawing.Size(165, 33);
             this.btn_UploadSKU.TabIndex = 9;
@@ -157,25 +158,13 @@
             // 
             // btn_GenerateInvoice
             // 
-            this.btn_GenerateInvoice.Location = new System.Drawing.Point(321, 236);
+            this.btn_GenerateInvoice.Location = new System.Drawing.Point(322, 245);
             this.btn_GenerateInvoice.Name = "btn_GenerateInvoice";
             this.btn_GenerateInvoice.Size = new System.Drawing.Size(165, 33);
             this.btn_GenerateInvoice.TabIndex = 10;
             this.btn_GenerateInvoice.Text = "Invoice";
             this.btn_GenerateInvoice.UseVisualStyleBackColor = true;
             this.btn_GenerateInvoice.Click += new System.EventHandler(this.btn_GenerateInvoice_Click);
-            // 
-            // lab_notFound
-            // 
-            this.lab_notFound.AutoSize = true;
-            this.lab_notFound.ForeColor = System.Drawing.Color.Red;
-            this.lab_notFound.Location = new System.Drawing.Point(12, 453);
-            this.lab_notFound.Name = "lab_notFound";
-            this.lab_notFound.Size = new System.Drawing.Size(182, 21);
-            this.lab_notFound.TabIndex = 11;
-            this.lab_notFound.Text = "[Check if sku not exist]";
-            this.lab_notFound.Visible = false;
-            this.lab_notFound.Click += new System.EventHandler(this.lab_notFound_Click);
             // 
             // btn_Reset
             // 
@@ -195,11 +184,28 @@
             this.resetPanel.Controls.Add(this.btn_Update);
             this.resetPanel.Controls.Add(this.label4);
             this.resetPanel.Controls.Add(this.txt_Password);
-            this.resetPanel.Location = new System.Drawing.Point(102, 303);
+            this.resetPanel.Location = new System.Drawing.Point(102, 326);
             this.resetPanel.Name = "resetPanel";
             this.resetPanel.Size = new System.Drawing.Size(385, 147);
             this.resetPanel.TabIndex = 13;
             this.resetPanel.Visible = false;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(21, 64);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(138, 21);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "New Invoice No:";
+            // 
+            // txt_InvoiceNo
+            // 
+            this.txt_InvoiceNo.Location = new System.Drawing.Point(166, 58);
+            this.txt_InvoiceNo.Name = "txt_InvoiceNo";
+            this.txt_InvoiceNo.Size = new System.Drawing.Size(200, 27);
+            this.txt_InvoiceNo.TabIndex = 16;
+            this.txt_InvoiceNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_InvoiceNo_KeyPress);
             // 
             // btn_Cancel
             // 
@@ -241,7 +247,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(46, 116);
+            this.label7.Location = new System.Drawing.Point(51, 111);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(85, 21);
             this.label7.TabIndex = 15;
@@ -249,7 +255,7 @@
             // 
             // txt_OrderNo
             // 
-            this.txt_OrderNo.Location = new System.Drawing.Point(141, 113);
+            this.txt_OrderNo.Location = new System.Drawing.Point(142, 111);
             this.txt_OrderNo.Name = "txt_OrderNo";
             this.txt_OrderNo.Size = new System.Drawing.Size(345, 27);
             this.txt_OrderNo.TabIndex = 16;
@@ -258,7 +264,7 @@
             // 
             this.rb_sameState.AutoSize = true;
             this.rb_sameState.Checked = true;
-            this.rb_sameState.Location = new System.Drawing.Point(142, 194);
+            this.rb_sameState.Location = new System.Drawing.Point(142, 214);
             this.rb_sameState.Name = "rb_sameState";
             this.rb_sameState.Size = new System.Drawing.Size(119, 25);
             this.rb_sameState.TabIndex = 17;
@@ -269,42 +275,43 @@
             // rb_differentState
             // 
             this.rb_differentState.AutoSize = true;
-            this.rb_differentState.Location = new System.Drawing.Point(321, 194);
+            this.rb_differentState.Location = new System.Drawing.Point(321, 214);
             this.rb_differentState.Name = "rb_differentState";
             this.rb_differentState.Size = new System.Drawing.Size(142, 25);
             this.rb_differentState.TabIndex = 18;
             this.rb_differentState.Text = "Different State";
             this.rb_differentState.UseVisualStyleBackColor = true;
             // 
-            // label6
+            // txt_TCS
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(21, 64);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(138, 21);
-            this.label6.TabIndex = 17;
-            this.label6.Text = "New Invoice No:";
+            this.txt_TCS.Location = new System.Drawing.Point(142, 148);
+            this.txt_TCS.Name = "txt_TCS";
+            this.txt_TCS.Size = new System.Drawing.Size(345, 27);
+            this.txt_TCS.TabIndex = 20;
+            this.txt_TCS.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_TCS_KeyPress);
             // 
-            // txt_InvoiceNo
+            // label8
             // 
-            this.txt_InvoiceNo.Location = new System.Drawing.Point(166, 58);
-            this.txt_InvoiceNo.Name = "txt_InvoiceNo";
-            this.txt_InvoiceNo.Size = new System.Drawing.Size(200, 27);
-            this.txt_InvoiceNo.TabIndex = 16;
-            this.txt_InvoiceNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_InvoiceNo_KeyPress);
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(93, 148);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(43, 21);
+            this.label8.TabIndex = 19;
+            this.label8.Text = "TCS:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1093, 525);
+            this.Controls.Add(this.txt_TCS);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.rb_differentState);
             this.Controls.Add(this.rb_sameState);
             this.Controls.Add(this.txt_OrderNo);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.resetPanel);
             this.Controls.Add(this.btn_Reset);
-            this.Controls.Add(this.lab_notFound);
             this.Controls.Add(this.btn_GenerateInvoice);
             this.Controls.Add(this.btn_UploadSKU);
             this.Controls.Add(this.label5);
@@ -342,7 +349,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btn_UploadSKU;
         private System.Windows.Forms.Button btn_GenerateInvoice;
-        private System.Windows.Forms.Label lab_notFound;
         private System.Windows.Forms.Button btn_Reset;
         private System.Windows.Forms.Panel resetPanel;
         private System.Windows.Forms.Button btn_Update;
@@ -355,6 +361,8 @@
         private System.Windows.Forms.Button btn_Cancel;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txt_InvoiceNo;
+        private System.Windows.Forms.TextBox txt_TCS;
+        private System.Windows.Forms.Label label8;
     }
 }
 
